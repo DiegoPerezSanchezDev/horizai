@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  EDITORIAL_LIVE_DATA_ENABLED = "false"
+  EDITORIAL_DECISIONS_ENABLED = "false"
+  EDITORIAL_WITHDRAWAL_ENABLED = "false"

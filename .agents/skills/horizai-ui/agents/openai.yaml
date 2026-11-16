@@ -1,0 +1,4 @@
+interface:
+  display_name: "HorizAI · UI editorial"
+  short_description: "Interfaz y recorridos con criterio de producto"
+  default_prompt: "Usa $horizai-ui para resolver mi petición sobre horizai con el contexto disponible."

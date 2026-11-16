@@ -1,0 +1,7 @@
+<svg width="720" height="510" viewBox="0 0 720 510" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="bg" x1="40" y1="20" x2="680" y2="490" gradientUnits="userSpaceOnUse"><stop stop-color="#123D72"/><stop offset=".55" stop-color="#071A34"/><stop offset="1" stop-color="#020A16"/></linearGradient><radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(360 236) rotate(90) scale(235 285)"><stop stop-color="#56B8FF" stop-opacity=".5"/><stop offset="1" stop-color="#56B8FF" stop-opacity="0"/></radialGradient></defs>
+  <rect width="720" height="510" fill="url(#bg)"/><rect width="720" height="510" fill="url(#glow)"/>
+  <g opacity=".3" stroke="#6EC4FF"><path d="M0 390 120 300 210 350 320 225 430 300 540 150 720 245"/><path d="M0 430 150 375 280 420 395 315 530 365 720 290"/><circle cx="360" cy="236" r="155"/><circle cx="360" cy="236" r="105"/></g>
+  <g stroke="#BCE8FF" stroke-width="8" stroke-linecap="round"><path d="M300 170c-35 0-58 20-58 48 0 19 12 34 32 41-16 6-25 18-25 34 0 28 24 47 59 47"/><path d="M420 170c35 0 58 20 58 48 0 19-12 34-32 41 16 6 25 18 25 34 0 28-24 47-59 47"/><path d="M316 180c28-22 60-22 88 0M316 330c28 22 60 22 88 0"/></g>
+  <circle cx="360" cy="236" r="13" fill="#56B8FF"/><circle cx="360" cy="236" r="25" stroke="#56B8FF" stroke-opacity=".45"/>
+</svg>

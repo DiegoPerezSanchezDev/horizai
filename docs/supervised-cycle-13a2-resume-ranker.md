@@ -1,0 +1,21 @@
+# FASE 13A.2 — Reanudación controlada desde Ranker
+
+**Resultado: `DEFERRED_PROVIDER_CAPACITY` en Critic.** La única reanudación autorizada usó el mismo intento, y la guarda genérica persistió el defer de Critic sin requerir recuperación manual. No se hizo una segunda reanudación.
+
+La causa original era una aserción del interceptor en `scripts/supervised-cycle-13a1-resume-editor.mjs`: exigía que `p_resume_stage` fuera siempre `editor` porque el runner 13A.1 empezaba allí. Al terminar 13A.1, la etapa pendiente real era Ranker, generación 1. M35 ya admite el avance a etapas posteriores.
+
+La corrección está en [capacity-resume-defer-guard.ts](../lib/agents/pipeline/capacity-resume-defer-guard.ts). Usa las definiciones canónicas `capacityResumeStages` y `capacityResumePreviousStages`. Valida etapa soportada, lineage de intento/evento/pipeline, coincidencia entre snapshot y etapa pendiente, checkpoints previos completos, ausencia de retroceso, generación siguiente, defer antes del despacho, cero requests del stage pendiente y `countsTowardRetryLimit=false`. El contrato cubre Verifier, Translator, Editor, Classifier, Ranker y Critic; Geo es determinista y no requiere reserva de capacidad del proveedor. No hubo cambios de migración.
+
+Las pruebas genéricas pasan para defer en las seis etapas y rechazan etapa desconocida, regresión, snapshot o intento desalineado, checkpoints incompletos, despacho previo y generación inválida. También pasaron las pruebas existentes de M35 claim/defer/resume y checkpoints durables, M36 accounting, límite supervisado, admisión Groq, Ranker, Critic, M34 y rutas M31/M32. Los gates de lint, TypeScript, build, diff y secret audit también pasaron.
+
+La revalidación remota previa al claim confirmó el mismo intento `65a83559-8522-4162-8e04-6f8a0bde62b3`, evento `event-2ecb910eda5c6167b3bb6105aaf38087` y pipeline `67c79a28-e27e-4a47-89a4-85801b9859cf`, en `DEFERRED_PROVIDER_CAPACITY`, Ranker/generación 1, sin dispatch ni checkpoint de Ranker. Verifier, Translator, Editor, Classifier y Geo estaban completos; el lineage coincidía. Había 4 requests y 7.961 tokens acumulados, sin reservas desconocidas; el tope supervisado era 18, con 14 requests disponibles. Las fingerprints públicas seguían siendo las mismas tres y Astra estaba archivado.
+
+El claim del mismo intento pasó y hubo exactamente una invocación de resume. No se repitió ninguna etapa completada: dispatches nuevos de Verifier, Translator, Editor, Classifier y Geo fueron cero. Ranker pasó con un dispatch Groq, sin retries, usando 1.378 tokens de entrada y 97 de salida. Se guardó su checkpoint durable.
+
+Antes de despachar Critic, la reserva atómica M35/M36 la difirió con `GROQ_TPM_LOCAL_CAPACITY_EXHAUSTED`: la ventana TPM tenía 1.475 tokens usados y la estimación para Critic era 7.379, por encima del límite de 8.000. Critic no fue despachado y no tiene checkpoint. El defer se persistió sobre el mismo intento como `DEFERRED_PROVIDER_CAPACITY`, `stop_stage=critic`, generación 2, con retry desactivado. M34 no se ejecutó y no se creó review, conforme al gate Critic PASS + M34 PASS.
+
+La contabilidad nueva fue 1 reserva, 1 dispatch Groq, 1.378 tokens de entrada, 97 de salida y 1.475 tokens totales. El acumulado quedó en 5 requests de 18 y 9.436 tokens. Retries, fallback, reservas desconocidas, Cloudflare y Cerebras quedaron en cero. No hubo scheduler, trigger, intento nuevo, decisión humana, Publisher ni publicación. El estado histórico del scheduler permaneció intacto. M32 status/list confirmaron 0 reviews esperando; inspect no aplicaba porque no se creó review.
+
+Una aserción de reporte posterior a la persistencia clasificó inicialmente como fallback el telemetry de Ranker porque ese objeto no incluía `provider`. El interceptor había aceptado únicamente la ruta Groq, el `agent_runs` de Ranker quedó validado como `groq` y los contadores diarios confirmaron cero requests de Cloudflare y Cerebras. Se corrigió localmente la cuenta a fallback 0 y el runner ahora ignora ese campo cuando no viene informado; no se repitió ninguna operación remota.
+
+La evidencia estructurada está en [supervised-cycle-13a2-resume-ranker.json](../artifacts/supervised-cycle-13a2-resume-ranker.json). Estado final: **no listo para acción humana**; se requiere una autorización futura y una fase nueva para reanudar desde Critic.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "HorizAI · tarea"
+  short_description: "Cambios y correcciones con contexto del repo"
+  default_prompt: "Usa $horizai-tarea para resolver mi petición sobre horizai con el contexto disponible."

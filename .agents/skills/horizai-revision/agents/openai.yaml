@@ -1,0 +1,4 @@
+interface:
+  display_name: "HorizAI · revisión"
+  short_description: "Revisión de errores y regresiones sin editar"
+  default_prompt: "Usa $horizai-revision para resolver mi petición sobre horizai con el contexto disponible."
