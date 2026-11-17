@@ -7,3 +7,7 @@
   EDITORIAL_LIVE_DATA_ENABLED = "false"
   EDITORIAL_DECISIONS_ENABLED = "false"
   EDITORIAL_WITHDRAWAL_ENABLED = "false"
+
+# ZIP builds need the adapter explicitly; publishing raw .next is unsafe.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
